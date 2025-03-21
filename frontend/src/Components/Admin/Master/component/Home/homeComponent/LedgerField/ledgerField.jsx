@@ -10,9 +10,15 @@ export default function LedgerField() {
   const [editIndex, setEditIndex] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
+  const token = localStorage.getItem("token"); // Retrieve token from localStorage
+
+
   const fetchHeader = async () => {
     try {
-      const response = await axios.get('api/admin/head');
+      const response = await axios.get("api/admin/head", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       const headNames = response.data.map(item => item);
       setHeaders(headNames);
     } catch (err) {
@@ -23,7 +29,10 @@ export default function LedgerField() {
   // Fetch ledger entries
   const fetchLedgers = async () => {
     try {
-      const response = await axios.get("api/admin/ledger");
+      const response = await axios.get("api/admin/ledger", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       setLedgers(response.data);
     } catch (err) {
       console.log("Error fetching ledgers:", err);
@@ -43,8 +52,11 @@ export default function LedgerField() {
       try {
         await axios.put("api/admin/ledger", {
           old_name: ledgers[editIndex].ledger_name,
-          new_name: ledgerName,
+          new_name: ledgerName
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
         });
+
         console.log("Ledger Updated");
         fetchLedgers();
       } catch (err) {
@@ -54,8 +66,11 @@ export default function LedgerField() {
       try {
         await axios.post("api/admin/ledger", {
           ledger_name: ledgerName,
-          head_name: selectedHead,
+          head_name: selectedHead
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
         });
+
         fetchLedgers();
       } catch (err) {
         console.log("Error adding ledger:", err);
@@ -80,7 +95,10 @@ export default function LedgerField() {
   // Delete Ledger Entry
   const handleDelete = async (ledger) => {
     try {
-      await axios.delete("api/admin/ledger", { data: { ledger_name:ledger } });
+      await axios.delete("api/admin/ledger", {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { ledger_name: ledger }
+      });
       console.log("Ledger Deleted");
       fetchLedgers();
     } catch (err) {

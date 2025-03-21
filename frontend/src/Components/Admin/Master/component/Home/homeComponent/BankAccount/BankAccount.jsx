@@ -7,11 +7,14 @@ export default function BankAccount() {
     const [accountNumber, setAccountNumber] = useState("");
     const [editIndex, setEditIndex] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
+    const token = localStorage.getItem("token");
 
     // Fetch Bank Accounts
     const fetchBankAccounts = async () => {
         try {
-            const response = await axios.get("api/admin/account");
+            const response = await axios.get("api/admin/account", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             setBankAccounts(response.data);
         } catch (err) {
             console.log("Error Occurred", err);
@@ -29,10 +32,17 @@ export default function BankAccount() {
         if (editIndex !== null) {
             // Update existing account
             try {
-                await axios.put("api/admin/account", {
-                    old_account: bankAccounts[editIndex].accountNumber,
-                    new_account:accountNumber
-                });
+                await axios.put(
+                    "api/admin/account",
+                    {
+                        old_account: bankAccounts[editIndex].accountNumber,
+                        new_account: accountNumber
+                    },
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
+
                 fetchBankAccounts();
             } catch (err) {
                 console.log("Error: " + err.message);
@@ -40,7 +50,13 @@ export default function BankAccount() {
         } else {
             // Add new account
             try {
-                await axios.post("api/admin/account", { paymentMode, accountNumber });
+                await axios.post(
+                    "api/admin/account",
+                    { paymentMode, accountNumber },
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
                 fetchBankAccounts();
             } catch (err) {
                 console.log("Error: " + err.message);
@@ -64,7 +80,10 @@ export default function BankAccount() {
     // Handle Delete
     const handleDelete = async (accountNumber) => {
         try {
-            await axios.delete("api/admin/account", { data: {accountNumber:accountNumber } });
+            await axios.delete("api/admin/account", {
+                headers: { Authorization: `Bearer ${token}` },
+                data: { accountNumber }
+            });
             fetchBankAccounts();
         } catch (err) {
             console.log("Error: " + err.message);

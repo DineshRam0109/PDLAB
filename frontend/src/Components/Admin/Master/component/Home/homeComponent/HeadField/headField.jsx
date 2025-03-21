@@ -6,11 +6,15 @@ export default function HeaderField() {
   const [newHeader, setNewHeader] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const token = localStorage.getItem("token"); // Retrieve token from localStorage
 
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('api/admin/head');
+      const response = await axios.get("api/admin/head", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       const headNames = response.data.map(item => item.Head_name);
       setHeaders(headNames);
     } catch (err) {
@@ -30,7 +34,12 @@ export default function HeaderField() {
     if (editIndex !== null) {
       const updatedHeaders = [...headers];
       try {
-        await axios.put('api/admin/head', { old_name: updatedHeaders[editIndex], new_name: newHeader });
+        await axios.put("api/admin/head",
+          { old_name: updatedHeaders[editIndex], new_name: newHeader },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
         console.log("Updated");
         fetchData();
       } catch (err) {
@@ -39,7 +48,12 @@ export default function HeaderField() {
       
     } else {
 
-      const payload = await axios.post('api/admin/head', {head_name:newHeader})
+       await axios.post("api/admin/head",
+        { head_name: newHeader },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
         .then(() => {
           setHeaders([...headers, newHeader]);})
           .catch((err)=>{
@@ -60,7 +74,10 @@ export default function HeaderField() {
 
   const handleDelete = async (head_name) => {
     try {
-      await axios.delete('api/admin/head', { data: { head_name: head_name } });
+      await axios.delete("api/admin/head", {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { head_name: head_name } // Data must be inside `data` for DELETE requests
+      });
       console.log("Deleted");
       fetchData();
     } catch (err) {

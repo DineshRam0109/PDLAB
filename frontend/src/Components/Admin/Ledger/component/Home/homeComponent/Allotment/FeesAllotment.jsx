@@ -64,7 +64,13 @@ const FeesAllotment = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("api/admin/feesAllot", formData);
+      const response = await axios.post("api/admin/feesAllot", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       setMessage({ type: "success", text: response.data.message });
       setFormData({
         student_id: "",
@@ -101,8 +107,12 @@ const FeesAllotment = () => {
 
     try {
       const response = await axios.post("api/admin/bulkUpload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       alert(response.data.message);
       setShowModal(false);
       setFile(null);

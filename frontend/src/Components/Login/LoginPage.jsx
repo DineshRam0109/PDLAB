@@ -2,20 +2,26 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import './LoginPageStyle.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const onSubmit = data => {
-    onLogin();
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post('api/students/login', data);
 
-    console.log(data);
-    if (data.email.startsWith('admin')) {
-      navigate('/');
-    } else {
-      navigate('/student');
+      const { token, role } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('role',role);
+setIsLoggedIn(true)
+      navigate(role === 'admin' ? '/admin' : '/student/profile');
+    } catch (error) {
+      console.log(error);
+      console.error(error.response?.data?.message || "Login failed");
     }
+
   };
 
   return (
